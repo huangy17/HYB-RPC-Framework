@@ -2,6 +2,8 @@ package com.huangyb.rpc.server;
 
 import com.huangyb.rpc.message.RpcRequestMessage;
 import com.huangyb.rpc.message.RpcResponseMesage;
+import com.huangyb.rpc.register.ServiceRegistry;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -16,15 +18,16 @@ import java.net.Socket;
  */
 
 /*
-* 真正的工作线程，当server接收到来自客户端的新连接将会创建此工作线程用于该socket的后续交互。
-* */
+ * 真正的工作线程，当server接收到来自客户端的新连接将会创建此工作线程用于该socket的后续交互。
+ * */
+@Slf4j
 public class ServerWorkerRunnableTask implements Runnable{
 
     private Socket socket;
-    private Object service;
+    private ServiceRegistry serviceRegistry;
 
-    public ServerWorkerRunnableTask(Socket socket, Object service) {
-        this.service = service;
+    public ServerWorkerRunnableTask(Socket socket, ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
         this.socket = socket;
     }
 
@@ -34,12 +37,17 @@ public class ServerWorkerRunnableTask implements Runnable{
         try (ObjectInputStream objectInputStream = new ObjectInputStream(socket.getInputStream());
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
             RpcRequestMessage rpcRequestMessage = (RpcRequestMessage) objectInputStream.readObject();
+            //根据请求报文获取service名称并动态调用方法==================================
+            Object service = serviceRegistry.getServiceByName(rpcRequestMessage.getInterfaceName());
             Method method = service.getClass().getMethod(rpcRequestMessage.getMethodName(), rpcRequestMessage.getParamTypes());
             Object returnObject = method.invoke(service, rpcRequestMessage.getParameters());
+            log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());
+            //将结果写入输出流=======================================================
             objectOutputStream.writeObject(new RpcResponseMesage<>(RpcResponseMesage.SUCCESS_CODE,returnObject));
             objectOutputStream.flush();
         } catch (Exception e){
-            e.printStackTrace();
+            log.error("Service fail to call method:", e );
+            //new RpcResponseMesage<>(RpcResponseMesage.FAIL_CODE,null);
         }
     }
 }

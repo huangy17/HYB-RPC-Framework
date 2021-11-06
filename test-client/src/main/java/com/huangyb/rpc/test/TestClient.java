@@ -3,11 +3,14 @@ package com.huangyb.rpc.test;
 import com.huangyb.rpc.api.HiObject;
 import com.huangyb.rpc.api.HiService;
 import com.huangyb.rpc.client.RpcClientProxy;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * @author huangyb
  * @create 2021-11-06 4:11
  */
+
+@Slf4j
 public class TestClient {
 
 
