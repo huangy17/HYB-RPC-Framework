@@ -14,10 +14,19 @@ import java.io.Serializable;
 * */
 public class RpcRequestMessage implements Serializable {
 
+    private  int id;
     private String interfaceName;
     private String methodName;
     private Object[] parameters;
     private Class<?>[] paramTypes;
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getInterfaceName() {
         return interfaceName;

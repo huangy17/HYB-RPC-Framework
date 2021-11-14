@@ -1,9 +1,8 @@
-package com.huangyb.rpc.server;
+package com.huangyb.rpc.socket.server;
 
+import com.huangyb.rpc.RpcServer;
 import com.huangyb.rpc.register.ServiceRegistry;
-import com.huangyb.rpc.register.ServiceRegistryImpl;
 import lombok.extern.slf4j.Slf4j;
-import sun.nio.ch.ThreadPool;
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -19,7 +18,7 @@ import java.net.Socket;
 * */
 
 @Slf4j
-public class RpcServer {
+public class SocketRpcServer implements RpcServer {
 
     private final HandlerSocketServerPool pool;
     //ServerSocket serverSocket = null;
@@ -27,7 +26,7 @@ public class RpcServer {
     /*
     * 创建工作线程池，一个socket连接建立开启一个工作线程用于接收该socket上的数据
     * */
-    public RpcServer(ServiceRegistry serviceRegistry){
+    public SocketRpcServer(ServiceRegistry serviceRegistry){
         log.info("Initial RpcServer...");
         //log.info("Initial threadPool...");
         pool = new HandlerSocketServerPool(50, 100);

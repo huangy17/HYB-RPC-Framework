@@ -1,14 +1,12 @@
-package com.huangyb.rpc.server;
+package com.huangyb.rpc.socket.server;
 
 import com.huangyb.rpc.message.RpcRequestMessage;
-import com.huangyb.rpc.message.RpcResponseMesage;
+import com.huangyb.rpc.message.RpcResponseMessage;
 import com.huangyb.rpc.register.ServiceRegistry;
 import lombok.extern.slf4j.Slf4j;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.Socket;
 
@@ -43,7 +41,7 @@ public class ServerWorkerRunnableTask implements Runnable{
             Object returnObject = method.invoke(service, rpcRequestMessage.getParameters());
             log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());
             //将结果写入输出流=======================================================
-            objectOutputStream.writeObject(new RpcResponseMesage<>(RpcResponseMesage.SUCCESS_CODE,returnObject));
+            objectOutputStream.writeObject(new RpcResponseMessage<>(RpcResponseMessage.SUCCESS_CODE,returnObject,1));
             objectOutputStream.flush();
         } catch (Exception e){
             log.error("Service fail to call method:", e );
