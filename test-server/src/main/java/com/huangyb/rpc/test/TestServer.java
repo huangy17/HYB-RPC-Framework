@@ -3,9 +3,9 @@ package com.huangyb.rpc.test;
 import com.huangyb.rpc.RpcServer;
 import com.huangyb.rpc.api.HiService;
 import com.huangyb.rpc.netty.server.NettyRpcServer;
-import com.huangyb.rpc.register.ServiceRegistry;
-import com.huangyb.rpc.register.ServiceRegistryImpl;
+import com.huangyb.rpc.register.ServiceProvider;
 //import com.huangyb.rpc.socket.server.RpcServer;
+import com.huangyb.rpc.register.ServiceProviderImpl;
 import com.huangyb.rpc.socket.server.SocketRpcServer;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,15 +23,17 @@ public class TestServer {
 
 
         //初始化注册器
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl();
+        //ServiceProvider serviceRegistry = new ServiceProviderImpl();
         //注册方法到注册器中
-        serviceRegistry.register(hiService);
+        //serviceRegistry.addServiceToProviderAndZk(hiService,"127.0.0.1",9000);
 
 
         //初始化rpcServer
-        RpcServer rpcServer = new SocketRpcServer(serviceRegistry);
+        RpcServer rpcServer = new SocketRpcServer("127.0.0.1",9000);
+        rpcServer.registryServiceToProviderAndZk(hiService);
+
         //启动rpcServer,创建socket绑定9000端口
-        rpcServer.start(9000);
+        //rpcServer.start();
     }
 
     public void testNettyServer(){
@@ -39,15 +41,17 @@ public class TestServer {
         HiService hiService = new HiServiceImpl();
 
         //初始化注册器
-        ServiceRegistry serviceRegistry = new ServiceRegistryImpl();
+        //ServiceProvider serviceRegistry = new ServiceProviderImpl();
         //注册方法到注册器中
-        serviceRegistry.register(hiService);
+        //serviceRegistry.addServiceToProviderAndZk(hiService,"127.0.0.1",9000);
 
 
         //初始化rpcServer
-        RpcServer rpcServer = new NettyRpcServer();
+        RpcServer rpcServer = new NettyRpcServer("127.0.0.1",9000);
+
+        rpcServer.registryServiceToProviderAndZk(hiService);
         //启动rpcServer,创建socket绑定9000端口
-        rpcServer.start(9000);
+        //rpcServer.start(9000);
     }
 
 

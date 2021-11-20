@@ -7,6 +7,9 @@ import com.huangyb.rpc.codec.CommonDecoder;
 import com.huangyb.rpc.codec.CommonEncoder;
 import com.huangyb.rpc.protocol.MessageCodec;
 import com.huangyb.rpc.protocol.Serializer;
+import com.huangyb.rpc.register.ServiceProvider;
+import com.huangyb.rpc.register.ServiceProviderImpl;
+import com.huangyb.rpc.socket.server.HandlerSocketServerPool;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -24,10 +27,24 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class NettyRpcServer implements RpcServer {
 
+    private final String ip;
+    private final int port;
+    private final ServiceProvider serviceProvider;
+
+    public NettyRpcServer(String ip, int port){
+        this.ip = ip;
+        this.port = port;
+        log.info("Initial RpcServer...");
+        log.info("Initial serviceRegistry...");
+        this.serviceProvider = new ServiceProviderImpl();
+        //start();
+    }
+
+
 
 
     @Override
-    public void start(int port) {
+    public void start() {
         NioEventLoopGroup boss = new NioEventLoopGroup();
         NioEventLoopGroup worker = new NioEventLoopGroup();
         LoggingHandler LOGGING_HANDLER = new LoggingHandler(LogLevel.DEBUG);
@@ -52,7 +69,7 @@ public class NettyRpcServer implements RpcServer {
                     });
 //            Channel channel = serverBootstrap.bind(port).sync().channel();
 //            channel.closeFuture().sync();
-            ChannelFuture future = serverBootstrap.bind(port).sync();
+            ChannelFuture future = serverBootstrap.bind(ip,port).sync();
             log.info("Start Server successfully: port:{}",port);
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
@@ -61,6 +78,12 @@ public class NettyRpcServer implements RpcServer {
             boss.shutdownGracefully();
             worker.shutdownGracefully();
         }
+    }
+
+    @Override
+    public <T> void registryServiceToProviderAndZk(T service) {
+        serviceProvider.addServiceToProviderAndZk(service, ip, port);
+        start();
     }
 
 

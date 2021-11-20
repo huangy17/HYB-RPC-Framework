@@ -1,9 +1,11 @@
 package com.huangyb.rpc.socket.server;
 
 import com.huangyb.rpc.RpcServer;
-import com.huangyb.rpc.register.ServiceRegistry;
+import com.huangyb.rpc.register.ServiceProvider;
+import com.huangyb.rpc.register.ServiceProviderImpl;
 import lombok.extern.slf4j.Slf4j;
 
+import javax.xml.ws.Service;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -22,23 +24,31 @@ public class SocketRpcServer implements RpcServer {
 
     private final HandlerSocketServerPool pool;
     //ServerSocket serverSocket = null;
-    private final ServiceRegistry serviceRegistry;
+    private final ServiceProvider serviceProvider;
+    private final String ip;
+    private final int port;
+
+
     /*
     * 创建工作线程池，一个socket连接建立开启一个工作线程用于接收该socket上的数据
     * */
-    public SocketRpcServer(ServiceRegistry serviceRegistry){
+    public SocketRpcServer(String ip, int port){
+        this.ip = ip;
+        this.port = port;
         log.info("Initial RpcServer...");
         //log.info("Initial threadPool...");
         pool = new HandlerSocketServerPool(50, 100);
         log.info("Initial serviceRegistry...");
-        this.serviceRegistry = serviceRegistry;
+        this.serviceProvider = new ServiceProviderImpl();
     }
-    //
-//    public void registry(int port, Object service){
-//
-//    }
 
-    public void start(int port){
+
+
+    public <T> void registryServiceToProviderAndZk(T service){
+        serviceProvider.addServiceToProviderAndZk(service, ip, port);
+    }
+
+    public void start(){
         log.info("start rpcServer...");
         ServerSocket serverSocket = null;
         try {
@@ -49,7 +59,7 @@ public class SocketRpcServer implements RpcServer {
                 log.info("Client connecting...: {}:{}",socket.getInetAddress(),socket.getPort());
                 //3. 吧socket对象交给线程池进行处理
                 //吧socket封装成一个任务对象交给线程池处理
-                pool.execute(new ServerWorkerRunnableTask(socket,serviceRegistry));
+                pool.execute(new ServerWorkerRunnableTask(socket,serviceProvider));
             }
 
         } catch (IOException e) {

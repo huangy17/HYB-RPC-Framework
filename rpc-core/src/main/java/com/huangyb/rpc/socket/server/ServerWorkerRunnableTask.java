@@ -2,7 +2,7 @@ package com.huangyb.rpc.socket.server;
 
 import com.huangyb.rpc.message.RpcRequestMessage;
 import com.huangyb.rpc.message.RpcResponseMessage;
-import com.huangyb.rpc.register.ServiceRegistry;
+import com.huangyb.rpc.register.ServiceProvider;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.ObjectInputStream;
@@ -22,10 +22,10 @@ import java.net.Socket;
 public class ServerWorkerRunnableTask implements Runnable{
 
     private Socket socket;
-    private ServiceRegistry serviceRegistry;
+    private ServiceProvider serviceProvider;
 
-    public ServerWorkerRunnableTask(Socket socket, ServiceRegistry serviceRegistry) {
-        this.serviceRegistry = serviceRegistry;
+    public ServerWorkerRunnableTask(Socket socket, ServiceProvider serviceProvider) {
+        this.serviceProvider = serviceProvider;
         this.socket = socket;
     }
 
@@ -36,7 +36,7 @@ public class ServerWorkerRunnableTask implements Runnable{
              ObjectOutputStream objectOutputStream = new ObjectOutputStream(socket.getOutputStream())) {
             RpcRequestMessage rpcRequestMessage = (RpcRequestMessage) objectInputStream.readObject();
             //根据请求报文获取service名称并动态调用方法==================================
-            Object service = serviceRegistry.getServiceByName(rpcRequestMessage.getInterfaceName());
+            Object service = serviceProvider.getServiceFromProvider(rpcRequestMessage.getInterfaceName());
             Method method = service.getClass().getMethod(rpcRequestMessage.getMethodName(), rpcRequestMessage.getParamTypes());
             Object returnObject = method.invoke(service, rpcRequestMessage.getParameters());
             log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());

@@ -27,7 +27,8 @@ public class TestClient {
     }
 
     public void testNettyClient(){
-        RpcClient rpcClient = new NettyRpcClient("127.0.0.1", 9000);
+        //RpcClient rpcClient = new NettyRpcClient("127.0.0.1", 9000);
+        RpcClient rpcClient = new NettyRpcClient();
         RpcClientProxy rpcClientProxy = new RpcClientProxy(rpcClient);
         //HiService hiServiceClass = null;
         HiService hiService = rpcClientProxy.getProxy(HiService.class);

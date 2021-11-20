@@ -2,8 +2,8 @@ package com.huangyb.rpc.netty.server;
 
 import com.huangyb.rpc.message.RpcRequestMessage;
 import com.huangyb.rpc.message.RpcResponseMessage;
-import com.huangyb.rpc.register.ServiceRegistry;
-import com.huangyb.rpc.register.ServiceRegistryImpl;
+import com.huangyb.rpc.register.ServiceProvider;
+import com.huangyb.rpc.register.ServiceProviderImpl;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
@@ -22,7 +22,7 @@ import java.lang.reflect.Method;
 @Slf4j
 public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcRequestMessage> {
 
-    private static final ServiceRegistry serviceRegistry = new ServiceRegistryImpl();
+    private static final ServiceProvider serviceProvider = new ServiceProviderImpl();
 
 
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
@@ -31,7 +31,7 @@ public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcReques
             log.info("Server received request: {}", rpcRequestMessage);
             String interfaceName = rpcRequestMessage.getInterfaceName();
             //根据请求报文获取service名称并动态调用方法==================================
-            Object service = serviceRegistry.getServiceByName(interfaceName);
+            Object service = serviceProvider.getServiceFromProvider(interfaceName);
             Method method = service.getClass().getMethod(rpcRequestMessage.getMethodName(), rpcRequestMessage.getParamTypes());
             Object returnObject = method.invoke(service, rpcRequestMessage.getParameters());
             log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());
@@ -58,7 +58,7 @@ public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcReques
             log.info("Server received request: {}", rpcRequestMessage);
             String interfaceName = rpcRequestMessage.getInterfaceName();
             //根据请求报文获取service名称并动态调用方法==================================
-            Object service = serviceRegistry.getServiceByName(rpcRequestMessage.getInterfaceName());
+            Object service = serviceProvider.getServiceFromProvider(rpcRequestMessage.getInterfaceName());
             Method method = service.getClass().getMethod(rpcRequestMessage.getMethodName(), rpcRequestMessage.getParamTypes());
             Object returnObject = method.invoke(service, rpcRequestMessage.getParameters());
             log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());

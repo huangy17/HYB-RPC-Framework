@@ -6,6 +6,7 @@ package com.huangyb.rpc;
  */
 public interface RpcServer {
 
-    void start(int port);
+    void start();
 
+    <T> void registryServiceToProviderAndZk(T service);
 }

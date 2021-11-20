@@ -10,6 +10,8 @@ import com.huangyb.rpc.message.RpcResponseMessage;
 import com.huangyb.rpc.netty.server.NettyRpcServerHandler;
 import com.huangyb.rpc.protocol.MessageCodec;
 import com.huangyb.rpc.protocol.Serializer;
+import com.huangyb.rpc.register.ServiceProvider;
+import com.huangyb.rpc.register.ServiceProviderImpl;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
@@ -22,6 +24,8 @@ import io.netty.util.AttributeKey;
 import io.netty.util.concurrent.DefaultPromise;
 import lombok.extern.slf4j.Slf4j;
 
+import java.net.InetSocketAddress;
+
 /**
  * @author huangyb
  * @create 2021-11-07 20:10
@@ -30,12 +34,13 @@ import lombok.extern.slf4j.Slf4j;
 public class NettyRpcClient implements RpcClient {
     //private static Bootstrap bootstrap;
     private volatile static Channel channel;
-    private String ip;
-    private int port;
+    //private String ip;
+    //private int port;
+    ServiceProvider serviceProvider;
 
-    public NettyRpcClient(String ip, int port){
-        this.ip = ip;
-        this.port = port;
+
+    public NettyRpcClient(){
+        serviceProvider = new ServiceProviderImpl();
     }
 
     public static Channel getChannel(String ip, int port){
@@ -93,7 +98,8 @@ public class NettyRpcClient implements RpcClient {
 
         try {
             //Channel channel = bootstrap.connect(ip, port).sync().channel();
-            Channel ch = getChannel(ip,port);
+            InetSocketAddress inetSocketAddress = serviceProvider.lookupService(rpcRequestMessage.getInterfaceName());
+            Channel ch = getChannel(inetSocketAddress.getHostString(),inetSocketAddress.getPort());
             ch.writeAndFlush(rpcRequestMessage).addListener(future -> {
                 if (!future.isSuccess()) {
                     Throwable cause = future.cause();
