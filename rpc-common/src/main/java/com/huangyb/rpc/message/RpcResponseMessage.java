@@ -11,7 +11,7 @@ public class RpcResponseMessage<T> implements Serializable {
     private Integer code;
     private T data;
     private int id;
-
+    private Class<?> dataType;
 
     public static final Integer SUCCESS_CODE = 200;
     public static final Integer FAIL_CODE = 500;
@@ -24,6 +24,13 @@ public class RpcResponseMessage<T> implements Serializable {
         this.code = code;
         this.data = data;
         this.id = id;
+    }
+
+    public RpcResponseMessage(Integer code, T data, int id, Class<?> dataType) {
+        this.code = code;
+        this.data = data;
+        this.id = id;
+        this.dataType = dataType;
     }
 
     public Integer getCode() {
@@ -48,5 +55,13 @@ public class RpcResponseMessage<T> implements Serializable {
 
     public void setId(int id) {
         this.id = id;
+    }
+
+    public Class<?> getDataType() {
+        return dataType;
+    }
+
+    public void setDataType(Class<?> dataType) {
+        this.dataType = dataType;
     }
 }

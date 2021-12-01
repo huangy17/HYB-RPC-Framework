@@ -98,7 +98,8 @@ public class NettyRpcClient implements RpcClient {
 
         try {
             //Channel channel = bootstrap.connect(ip, port).sync().channel();
-            InetSocketAddress inetSocketAddress = serviceProvider.lookupService(rpcRequestMessage.getInterfaceName());
+            InetSocketAddress inetSocketAddress =
+                    serviceProvider.lookupService(rpcRequestMessage.getInterfaceName());
             Channel ch = getChannel(inetSocketAddress.getHostString(),inetSocketAddress.getPort());
             ch.writeAndFlush(rpcRequestMessage).addListener(future -> {
                 if (!future.isSuccess()) {

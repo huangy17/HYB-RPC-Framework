@@ -37,7 +37,7 @@ public class NettyRpcServerHandler extends SimpleChannelInboundHandler<RpcReques
             log.info("Service:{} call method:{} successfully",rpcRequestMessage.getInterfaceName(),rpcRequestMessage.getMethodName());
 
             ChannelFuture future = ctx.writeAndFlush(
-                    new RpcResponseMessage<>(RpcResponseMessage.SUCCESS_CODE,returnObject,rpcRequestMessage.getId()));
+                    new RpcResponseMessage<>(RpcResponseMessage.SUCCESS_CODE,returnObject,rpcRequestMessage.getId(),returnObject.getClass()));
             future.addListener(ChannelFutureListener.CLOSE);
         }catch (Exception e){
             e.printStackTrace();

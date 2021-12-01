@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.huangyb.rpc.message.RpcRequestMessage;
+import com.huangyb.rpc.message.RpcResponseMessage;
 
 
 import java.io.*;
@@ -75,6 +76,16 @@ public interface Serializer {
                             }
                         }
                         obj = rpcRequestMessage;
+                    }else
+                    if(obj instanceof RpcResponseMessage){
+                        RpcResponseMessage rpcResponseMessage = (RpcResponseMessage) obj;
+
+                        Class<?> clazz1 = rpcResponseMessage.getDataType();
+                        if(!clazz.isAssignableFrom(rpcResponseMessage.getData().getClass())) {
+                            byte[] bytes1 = objectMapper.writeValueAsBytes(rpcResponseMessage.getData());
+                            rpcResponseMessage.setData(objectMapper.readValue(bytes1, clazz1));
+                        }
+                        obj = rpcResponseMessage;
                     }
                     return (T) obj;
                 } catch (Exception e) {
